@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        li {
+            list-style: none;
+        }
+        .map {
+            margin: 0 auto;
+            width: 300px;
+            height: 510px;
+            border: 1px solid greenyellow;
+            border-top: none;
+            margin-top: 100px;
+        }
+        .map ul li {
+            float: left;
+            height: 30px;
+            width: 30px;
+
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="map">
+        <ul></ul>
+    </div>
+</body>
+<script>
+    //地图：利用li做的地图
+    var xarr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    var yarr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    var map = document.querySelector('.map ul');
+    for (var i = 0; i < xarr.length; i++) {
+        for (var j = 0; j < yarr.length; j++) {
+            var li = document.createElement('li');
+            li.setAttribute('index', '0');
+            li.style.backgroundColor = 'red';
+            map.append(li);
+        }
+    }
+    var lis = document.querySelectorAll('li');
+    //方块生成的构造函数
+    function Fangkuai(lis) {
+        this.lis = lis;
+        this.brr = [];
+        this.timeID = 1;
+        this.end = false;
+    }
+    Fangkuai.prototype.init = function () {
+        var arr = [
+            [4, 5, 6, 7],
+            [4, 13, 14, 15],
+            [4, 5, 14, 15],
+            [4, 14, 24, 25],
+            [4,14,24,23],
+            [4, 5, 15, 16],
+            [4, 5, 13, 14]
+        ];
+        brr=this.brr = arr[Math.floor(Math.random() * 1)];
+    }
+    Fangkuai.prototype.initkuai = function () {
+        //初始化方块   
+        for (var i = 0; i < brr.length; i++) {
+            if(this.lis[brr[i]].getAttribute('index')==1)
+            {alert('游戏结束了！');}
+            this.lis[brr[i]].style.backgroundColor = 'yellow';
+            this.lis[brr[i]].setAttribute('index', '1');
+        }
+    }
+    Fangkuai.prototype.remove = function () {
+        for (var i = 0; i < brr.length; i++) {
+            this.lis[brr[i]].style.backgroundColor = 'red';
+            this.lis[brr[i]].setAttribute('index', '0');
+        }
+    }
+    Fangkuai.prototype.onemove = function () {
+        var brr = this.brr;
+        var that = this;
+
+        var kong = [];
+        //先清除之前的图形
+
+        for (var i = 0; i < brr.length; i++) {
+            var a = brr[i] + 10;
+            kong.push(a);
+            if (kong.length == 4) {
+                for (var i = 0; i < kong.length; i++) {
+                    if (kong.indexOf(brr[i]) == -1) {
+                        lis[brr[i]].style.backgroundColor = 'red';
+                        lis[brr[i]].setAttribute('index', '0');
+                    }
+                }
+                this.brr = kong;
+            }
+            lis[a].style.backgroundColor = 'yellow';
+            lis[a].setAttribute('index', '1');
+        }
+    }
+    Fangkuai.prototype.direction = function (key) {
+        switch (key) {
+            case 38:
+                if(this.brr[0]+10==this.brr[2]&&this.brr[1]+10==this.brr[3]){}else{
+                     for(var i=0;i<this.brr.length;i++){
+                    var y=Math.floor(this.brr[i] / 10) 
+                    var x=this.brr[i]-y*10;
+                    var yuanY=Math.floor(this.brr[2]/10);
+                    var yuanX=this.brr[2]-yuanY*10;
+                    var xianX=x-yuanX;
+                    var xianY=y-yuanY;
+                    var bianX=xianY+yuanX;
+                    var bianY=-xianX+yuanY;
+                    if(bianY*10+bianX>0)
+                    this.brr[i]=bianY*10+bianX;
+                }
+                }
+
+                
+               
+                
+                console.log(this.brr);
+                break;
+            case 40:
+                for (var i = 0; i < this.brr.length; i++) {
+                    this.brr[i] += 10;
+                    //向下的边界检测要么到底,要么检测到下一个有方块也就是li的index为1
+                    if (this.brr[i] >= 170 || this.lis[this.brr[i]].getAttribute('index') == 1) {
+                        this.end = true;
+                        clearInterval(this.timeID);
+                    }
+                };
+                if (this.end == true) {
+                    for (var i = 0; i < this.brr.length; i++) {//遍历当前this.brr
+                        this.brr[i] -= 10;//恢复this.brr用来找到当前方块
+                    }
+                    this.initkuai();
+                    for (var i = 0; i < this.brr.length; i++) {//用来做消行的处理
+                        var xiaohang = 0;
+                        var hang = Math.floor(this.brr[i] / 10) * 10;
+                        for (var j = 0; j < 10; j++) {
+                            xiaohang += +this.lis[hang + j].getAttribute('index');
+                        }
+                      
+                        if (xiaohang == 10) {
+                            for (var h = hang; h < hang + 10; h++) {
+                                this.lis[h].setAttribute('index', '0');
+                                this.lis[h].style.backgroundColor = 'red';
+                            }
+                            for (var is = hang + 1; is >= 0; is--)
+                                if (this.lis[is].getAttribute('index') == 1) {
+                                    this.lis[is].setAttribute('index', 0);
+                                    this.lis[is].style.backgroundColor = 'red';
+                                    this.lis[is + 10].setAttribute('index', 1);
+                                    this.lis[is + 10].style.backgroundColor = 'yellow';
+                                }
+                        }
+                    }
+
+                } else {
+                    this.initkuai();
+                }
+                break;
+            case 37:
+                var kaiguan = false; //定义一个变量用来记录是否到边界
+                for (var i = 0; i < this.brr.length; i++) {
+
+                    this.brr[i] -= 1;
+                    //向左的边界检测要么到最左边,要么检测到左侧有方块也就是li的index为1
+                    if (this.brr[i] % 10 == 9 || this.lis[this.brr[i]].getAttribute('index') == 1) {
+
+                        kaiguan = true;
+                    }
+                }
+                if (kaiguan)
+                    for (var i = 0; i < this.brr.length; i++) {
+                        this.brr[i] += 1;
+                    }
+                this.initkuai();
+                break;
+            case 39:
+                var kaiguan = false; //定义一个变量用来记录是否到边界
+                for (var i = 0; i < this.brr.length; i++) {
+                    this.brr[i] += 1;
+                    //向右的边界检测要么到最右边,要么检测到右侧有方块也就是li的index为1
+                    if (this.brr[i] % 10 == 0 || this.lis[this.brr[i]].getAttribute('index') == 1) {
+
+                        kaiguan = true;
+                    }
+                }
+                if (kaiguan)
+                    for (var i = 0; i < this.brr.length; i++) {
+                        this.brr[i] -= 1;
+                    }
+                this.initkuai();
+                break;
+        }
+    }
+    Fangkuai.prototype.moving = function () {
+        //开启一个定时器,让方块可以自己动起来
+        var that = this;
+
+        this.timeID = setInterval(function () {
+            this.remove();
+            this.direction(40);
+            //在边界检测下边的时候清除定时器
+            if (this.end == true) {
+                clearInterval(this.timeID);
+            }
+        }.bind(that), 500)
+    }
+
+    function Game() {
+        this.fangkuqi = new Fangkuai(lis);
+    }
+    Game.prototype.init = function () {
+        var fangkuqi = this.fangkuqi;
+        //生成方块
+        fangkuqi.init();
+        fangkuqi.initkuai();
+        //通过改变生成方块的数组来控制方向
+        window.onkeydown = function (e) {
+            fangkuqi.remove();
+            fangkuqi.direction(e.keyCode); //在方向的方法里要进行边界的检测
+        };
+        fangkuqi.moving();
+    }
+    var game = new Game();
+    game.init();
+    var timeID = setInterval(function () { //开启一个定时器监听方块里面的end属性,如果是true那么就再从头开始
+        if (game.fangkuqi.end == true) {
+            game.fangkuqi.end = false;
+            game.init();
+        }
+    }, 500)
+</script>
+</html>
